@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin</title></head>
+<body style="background:#111; color:#fff; padding:20px;">
+    <h2>PENDING ORDERS</h2>
+    <div id="list"></div>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        firebase.initializeApp({databaseURL: "https://m-legacy-5cf2b-default-rtdb.firebaseio.com/"});
+        firebase.database().ref('pending_orders').on('value', s => {
+            const l = document.getElementById('list'); l.innerHTML = "";
+            const d = s.val();
+            if(d) Object.keys(d).forEach(id => {
+                l.innerHTML += `<div style="border:1px solid #D4AF37; padding:10px; margin:10px;">
+                    ID: ${id} | Amt: $${d[id].usdAmount} | <button onclick="app('${id}')">Approve</button>
+                </div>`;
+            });
+        });
+        function app(id){
+            firebase.database().ref('pending_orders/'+id).once('value', s => {
+                firebase.database().ref('pixels/'+id).set(s.val()).then(()=>firebase.database().ref('pending_orders/'+id).remove());
+            });
+        }
+    </script>
+</body>
+</html>
